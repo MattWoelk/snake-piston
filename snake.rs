@@ -30,6 +30,8 @@ use piston::event::*;
 use piston::input::keyboard::Key;
 use rand::{thread_rng, Rng};
 
+use std::collections::vec_deque::VecDeque;
+
 // width and height must never change
 const BOARD_WIDTH: i8 = 15;
 const BOARD_HEIGHT: i8 = 15;
@@ -47,17 +49,22 @@ struct Snake {
     tail: Vec<(i8,i8)>,
     headi: usize,
     last_pressed: Key,
+    key_queue: VecDeque<Key>,
 }
 
 impl Snake {
     fn new(tail: Vec<(i8, i8)>, key: Key) -> Snake {
+        let mut key_queue = VecDeque::new();
+        key_queue.push_back(key);
+
         Snake {
             tail: tail,
             headi: 0,
+            key_queue: key_queue,
             last_pressed: key,
         }
     }
-    
+
     fn render(&self, t: math::Matrix2d, gfx: &mut GlGraphics) {
         for p in self.tail.iter() {
             rectangle(color::hex("8ba673"),
@@ -70,7 +77,7 @@ impl Snake {
     fn key_press(&mut self, k: Key) {
         use piston::input::keyboard::Key::*;
         match k {
-            Right | Down | Left | Up => self.last_pressed = k,
+            Right | Down | Left | Up => self.key_queue.push_back(k),
             _ => {},
         }
     }
@@ -111,6 +118,12 @@ impl Snake {
 
     fn update(g: &mut Game) {
         use piston::input::keyboard::Key::*;
+
+        match g.snake.key_queue.pop_front() {
+            Some(k) => g.snake.last_pressed = k,
+            None => ()
+        }
+
         Snake::mv(g, match g.snake.last_pressed {
             Right =>  (1, 0),
             Down => (0, 1),
@@ -135,7 +148,7 @@ struct Food {
     food_type: FoodType,
     xy: (i8,i8),
     score: u32,
-    life_time: u32, 
+    life_time: u32,
     lived_time: u32,
 }
 
@@ -174,15 +187,15 @@ impl Food {
         if !g.food.iter().any(|f| f.food_type == FoodType::Apple) {
             if let Some(f) = Food::new(FoodType::Apple, Food::genxy(g), 10, 45, 100.0) {
                 g.food.push(f)
-            }            
-        } 
+            }
+        }
 
         if !g.food.iter().any(|f| f.food_type == FoodType::Candy) {
             if let Some(f) = Food::new(FoodType::Candy, Food::genxy(g), 50, 15, 1.0) {
                 g.food.push(f)
             }
         }
-        
+
         for i in 0..g.food.len() {
             g.food[i].lived_time += 1;
             if g.food[i].lived_time > g.food[i].life_time {
@@ -252,7 +265,7 @@ fn level2() -> Level {
         (12,2),(11,3),(10,4),(9,5),(7,7),(5,9),(4,10),(3,11),(2,12),
         (0,7),(7,0),(14,7),(7,14),
     ];
-    
+
     let iw = vec![];
 
     Level {
@@ -271,7 +284,7 @@ fn rand_level() -> Level {
     }
 }
 
-    
+
 struct Game {
     gfx: GlGraphics,
     snake: Snake,
@@ -282,12 +295,12 @@ struct Game {
     invisible_walls: Vec<(i8,i8)>,
     food: Vec<Food>,
     score: u32,
-    last_key: Key,
+    last_keys: VecDeque<Key>,
 }
 
 impl Game {
     fn new() -> Game {
-        
+
         let opengl = OpenGL::_3_2;
         let gl = GlGraphics::new(opengl);
         let l = rand_level();
@@ -300,7 +313,7 @@ impl Game {
               invisible_walls: l.invisible_walls,
               food: vec![],
               score: 0,
-              last_key: Key::Unknown,
+              last_keys: VecDeque::new(),
         }
     }
 
@@ -335,10 +348,14 @@ impl Game {
         }
 
         self.time += args.dt;
-
         if self.time > self.update_time {
             self.time -= self.update_time;
-            self.snake.key_press(self.last_key);
+
+            for k in self.last_keys.clone() {
+                self.snake.key_press(k);
+            }
+            self.last_keys.clear();
+
             Snake::update(self);
             Food::update(self);
         }
@@ -356,8 +373,7 @@ impl Game {
                 self.invisible_walls = l.invisible_walls;
                 self.food = vec![];
                 self.score = 0;
-                self.last_key = Key::Unknown;
-                return;
+                self.last_keys.push_back(Key::Unknown);
             },
             (Key::P, State::Playing) => {
                 self.state = State::Paused;
@@ -366,8 +382,7 @@ impl Game {
                 self.state = State::Playing;
             },
             _ => {
-                self.last_key = key;
-
+                self.last_keys.push_back(key);
             }
         };
     }
@@ -377,14 +392,14 @@ fn main() {
     use glutin_window::GlutinWindow as Window;
     use piston::window::WindowSettings;
     println!("R => Restart\nP => Pause\nEsc => Quit");
-    
+
     let window = Window::new(
         WindowSettings::new("Snake - Piston",
                             [BOARD_WIDTH as u32 * TILE_SIZE as u32, BOARD_HEIGHT as u32 * TILE_SIZE as u32])
             .exit_on_esc(true));
-    
+
     let mut game = Game::new();
-    
+
     for e in window.events() {
         use piston::input::Button;
         if let Some(args) = e.render_args() {
