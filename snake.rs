@@ -27,7 +27,7 @@ use piston::event::*;
 use piston::input::keyboard::Key;
 use rand::{thread_rng, Rng};
 
-    
+
 // If you change width and height also change the levelN functions
 const BOARD_WIDTH: i8 = 15;
 const BOARD_HEIGHT: i8 = 15;
@@ -58,7 +58,7 @@ impl Snake {
             last_pressed: key,
         }
     }
-    
+
     fn render(&self, t: math::Matrix2d, gfx: &mut GlGraphics) {
         for p in self.tail.iter() {
             rectangle(color::hex("8ba673"),
@@ -99,7 +99,7 @@ impl Snake {
             println!("### Game Over ###\nScore: {}\nPress R to restart\nPress Esc to quit", g.score);
             return;
         }
-        
+
         for i in 0..g.food.len() {
             if g.food[i].xy == xy {
                 let f = g.food.swap_remove(i);
@@ -145,7 +145,7 @@ struct Food {
     food_type: FoodType,
     xy: Point,
     score: u32,
-    life_time: u32, 
+    life_time: u32,
     lived_time: u32,
 }
 
@@ -184,15 +184,15 @@ impl Food {
         if !g.food.iter().any(|f| f.food_type == FoodType::Apple) {
             if let Some(f) = Food::new(FoodType::Apple, Food::genxy(g), 10, 45, 100.0) {
                 g.food.push(f)
-            }            
-        } 
+            }
+        }
 
         if !g.food.iter().any(|f| f.food_type == FoodType::Candy) {
             if let Some(f) = Food::new(FoodType::Candy, Food::genxy(g), 50, 15, 1.0) {
                 g.food.push(f)
             }
         }
-        
+
         for i in 0..g.food.len() {
             g.food[i].lived_time += 1;
             if g.food[i].lived_time > g.food[i].life_time {
@@ -216,6 +216,7 @@ impl Food {
     }
 }
 
+#[allow(unused_mut)]
 macro_rules! walls {
     ( $( $x:expr, $y:expr ),* ) => {
         {
@@ -235,12 +236,12 @@ struct Level {
 }
 
 fn level1() -> Level {
-    
+
     let w = walls![
-        1,0, 2,0, 3,0, 4,0, 5,0, 6,0, 8,0, 9,0, 10,0, 11,0, 12,0, 13,0, 
-        14,1, 14,2, 14,3, 14,4, 14,5, 14,6, 14,8, 14,9, 14,10, 14,11, 14,12, 14,13, 
-        1,14, 2,14, 3,14, 4,14, 5,14, 6,14, 8,14, 9,14, 10,14, 11,14, 12,14, 13,14, 
-        0,1, 0,2, 0,3, 0,4, 0,5, 0,6, 0,8, 0,9, 0,10, 0,11, 0,12, 0,13, 
+        1,0, 2,0, 3,0, 4,0, 5,0, 6,0, 8,0, 9,0, 10,0, 11,0, 12,0, 13,0,
+        14,1, 14,2, 14,3, 14,4, 14,5, 14,6, 14,8, 14,9, 14,10, 14,11, 14,12, 14,13,
+        1,14, 2,14, 3,14, 4,14, 5,14, 6,14, 8,14, 9,14, 10,14, 11,14, 12,14, 13,14,
+        0,1, 0,2, 0,3, 0,4, 0,5, 0,6, 0,8, 0,9, 0,10, 0,11, 0,12, 0,13,
         7,7
     ];
 
@@ -260,11 +261,11 @@ fn level1() -> Level {
 
 fn level2() -> Level {
     let w = walls![
-        2,2, 3,3, 4,4, 5,5, 7,7, 9,9, 10,10, 11,11, 12,12, 
-        12,2, 11,3, 10,4, 9,5, 7,7, 5,9, 4,10, 3,11, 2,12, 
+        2,2, 3,3, 4,4, 5,5, 7,7, 9,9, 10,10, 11,11, 12,12,
+        12,2, 11,3, 10,4, 9,5, 7,7, 5,9, 4,10, 3,11, 2,12,
         0,7, 7,0, 14,7, 7,14
     ];
-    
+
     let iw = walls![];
 
     let mut s = VecDeque::new();
@@ -288,7 +289,7 @@ fn rand_level() -> Level {
     }
 }
 
-    
+
 struct Game {
     snake: Snake,
     time: f64,
@@ -387,11 +388,11 @@ fn main() {
         WindowSettings::new("Snake - Piston",
                             [BOARD_WIDTH as u32 * TILE_SIZE as u32, BOARD_HEIGHT as u32 * TILE_SIZE as u32])
             .exit_on_esc(true));
-    
+
     let mut gfx = GlGraphics::new(OpenGL::_3_2);
 
     let mut game = Game::new();
-    
+
     for e in window.events() {
         use piston::input::Button;
         if let Some(args) = e.render_args() {
