@@ -34,6 +34,40 @@ const BOARD_HEIGHT: i8 = 15;
 const TILE_SIZE: f64 = 50.0;
 const UPDATE_TIME: f64 = 0.15;
 
+
+fn main() {
+    use glutin_window::GlutinWindow as Window;
+    use piston::window::WindowSettings;
+
+    println!("R => Restart\nP => Pause\nEsc => Quit");
+
+    let window = Window::new(
+        WindowSettings::new("Snake - Piston",
+                            [BOARD_WIDTH as u32 * TILE_SIZE as u32, BOARD_HEIGHT as u32 * TILE_SIZE as u32])
+            .exit_on_esc(true));
+
+    let mut gfx = GlGraphics::new(OpenGL::_3_2);
+
+    let mut game = Game::new();
+
+    for e in window.events() {
+        use piston::input::Button;
+        if let Some(args) = e.render_args() {
+            let t = Context::new_viewport(args.viewport()).transform;
+            game.render(t, &mut gfx);
+        }
+
+        if let Some(Button::Keyboard(key)) = e.press_args() {
+            game.key_press(key);
+        }
+
+        if let Some(args) = e.update_args() {
+            game.update(args.dt);
+        }
+    }
+}
+
+
 #[derive(PartialEq, Copy, Clone)]
 enum State {
     Playing,
@@ -378,34 +412,3 @@ impl Game {
     }
 }
 
-fn main() {
-    use glutin_window::GlutinWindow as Window;
-    use piston::window::WindowSettings;
-
-    println!("R => Restart\nP => Pause\nEsc => Quit");
-
-    let window = Window::new(
-        WindowSettings::new("Snake - Piston",
-                            [BOARD_WIDTH as u32 * TILE_SIZE as u32, BOARD_HEIGHT as u32 * TILE_SIZE as u32])
-            .exit_on_esc(true));
-
-    let mut gfx = GlGraphics::new(OpenGL::_3_2);
-
-    let mut game = Game::new();
-
-    for e in window.events() {
-        use piston::input::Button;
-        if let Some(args) = e.render_args() {
-            let t = Context::new_viewport(args.viewport()).transform;
-            game.render(t, &mut gfx);
-        }
-
-        if let Some(Button::Keyboard(key)) = e.press_args() {
-            game.key_press(key);
-        }
-
-        if let Some(args) = e.update_args() {
-            game.update(args.dt);
-        }
-    }
-}
