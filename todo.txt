@@ -1,0 +1,3 @@
+[] make it 2-player
+    [] make the game hold multiple snakes (but only set one)
+    [] allow the player to hit '2' to add a second snake
