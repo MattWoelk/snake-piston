@@ -1,3 +1,8 @@
 [] make it 2-player
     [] make the game hold multiple snakes (but only set one)
+        instead of snake.mv(game, point) it should be game.mv(snake, point)
+        OR snake.mv(self, game, point)
+            THIS ONE
+        [done] OR mv(game, point)
+        THEN change snake.update to use self instead of game
     [] allow the player to hit '2' to add a second snake
