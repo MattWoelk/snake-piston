@@ -119,7 +119,7 @@ impl Snake {
             g.snake.keys.push_back(g.snake.last_pressed);
         }
         let k = g.snake.keys.pop_front().unwrap();
-        mv(g, match k {
+        g.mv(match k {
             Right =>  Point{x: 1, y: 0},
             Down => Point{x: 0, y: 1},
             Left => Point{x: -1, y: 0},
@@ -133,41 +133,6 @@ impl Snake {
     }
 }
 
-fn mv(g: &mut Game, dtxy: Point) {
-    let mut xy = Point{x: g.snake.tail.front().unwrap().x + dtxy.x,
-                       y: g.snake.tail.front().unwrap().y + dtxy.y};
-    if xy.x >= BOARD_WIDTH {
-        xy.x = 0;
-    } else if xy.x < 0 {
-        xy.x = BOARD_WIDTH-1;
-    }
-
-    if xy.y >= BOARD_HEIGHT {
-        xy.y = 0;
-    } else if xy.y < 0 {
-        xy.y = BOARD_HEIGHT-1;
-    }
-
-    if g.walls.iter().any(|w| *w == xy) || g.snake.collides(xy) {
-        g.state = State::GameOver;
-        println!("### Game Over ###\nScore: {}\nPress R to restart\nPress Esc to quit", g.score);
-        return;
-    }
-
-    for i in 0..g.food.len() {
-        if g.food[i].xy == xy {
-            let f = g.food.swap_remove(i);
-            g.score += f.score;
-            let xy = *g.snake.tail.front().unwrap();
-            g.snake.tail.push_back(xy);
-            g.update_time -= 0.002;
-            break;
-        }
-    }
-
-    g.snake.tail.pop_back();
-    g.snake.tail.push_front(xy);
-}
 
 
 #[derive(PartialEq)]
@@ -410,6 +375,42 @@ impl Game {
                 self.snake.key_press(key);
             }
         };
+    }
+
+    fn mv(self: &mut Game, dtxy: Point) {
+        let mut xy = Point{x: self.snake.tail.front().unwrap().x + dtxy.x,
+                           y: self.snake.tail.front().unwrap().y + dtxy.y};
+        if xy.x >= BOARD_WIDTH {
+            xy.x = 0;
+        } else if xy.x < 0 {
+            xy.x = BOARD_WIDTH-1;
+        }
+
+        if xy.y >= BOARD_HEIGHT {
+            xy.y = 0;
+        } else if xy.y < 0 {
+            xy.y = BOARD_HEIGHT-1;
+        }
+
+        if self.walls.iter().any(|w| *w == xy) || self.snake.collides(xy) {
+            self.state = State::GameOver;
+            println!("### Game Over ###\nScore: {}\nPress R to restart\nPress Esc to quit", self.score);
+            return;
+        }
+
+        for i in 0..self.food.len() {
+            if self.food[i].xy == xy {
+                let f = self.food.swap_remove(i);
+                self.score += f.score;
+                let xy = *self.snake.tail.front().unwrap();
+                self.snake.tail.push_back(xy);
+                self.update_time -= 0.002;
+                break;
+            }
+        }
+
+        self.snake.tail.pop_back();
+        self.snake.tail.push_front(xy);
     }
 }
 
