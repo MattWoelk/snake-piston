@@ -5,5 +5,5 @@
             THIS ONE
         [done] OR mv(game, point)
         [done] try game.mv(snake, point) or game.mv(point)
-        THEN change snake.update to use self instead of game
+        [] THEN change snake.update to use self instead of game
     [] allow the player to hit '2' to add a second snake

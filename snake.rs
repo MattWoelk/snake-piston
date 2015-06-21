@@ -377,7 +377,7 @@ impl Game {
         };
     }
 
-    fn mv(self: &mut Game, dtxy: Point) {
+    fn mv(&mut self, dtxy: Point) {
         let mut xy = Point{x: self.snake.tail.front().unwrap().x + dtxy.x,
                            y: self.snake.tail.front().unwrap().y + dtxy.y};
         if xy.x >= BOARD_WIDTH {
