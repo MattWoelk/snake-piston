@@ -41,9 +41,11 @@ fn main() {
 
     println!("R => Restart\nP => Pause\nEsc => Quit");
 
+    let board_dimensions = [BOARD_WIDTH as u32 * TILE_SIZE as u32, BOARD_HEIGHT as u32 * TILE_SIZE as u32];
+
     let window = Window::new(
         WindowSettings::new("Snake - Piston",
-                            [BOARD_WIDTH as u32 * TILE_SIZE as u32, BOARD_HEIGHT as u32 * TILE_SIZE as u32])
+                            [board_dimensions[0], board_dimensions[1]])
             .exit_on_esc(true));
 
     let mut gfx = GlGraphics::new(OpenGL::_3_2);
@@ -377,9 +379,9 @@ impl Game {
         };
     }
 
-    fn mv(&mut self, dtxy: Point) {
-        let mut xy = Point{x: self.snake.tail.front().unwrap().x + dtxy.x,
-                           y: self.snake.tail.front().unwrap().y + dtxy.y};
+    fn mv(&mut self, velocity: Point) {
+        let mut xy = Point{x: self.snake.tail.front().unwrap().x + velocity.x,
+                           y: self.snake.tail.front().unwrap().y + velocity.y};
         if xy.x >= BOARD_WIDTH {
             xy.x = 0;
         } else if xy.x < 0 {

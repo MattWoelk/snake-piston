@@ -5,5 +5,11 @@
             THIS ONE
         [done] OR mv(game, point)
         [done] try game.mv(snake, point) or game.mv(point)
+        [] have two snakes that are both controlled by the same person.
+            [] generate them in 2 random spots.
+            [] make the game end when both die.
+        [] make mv have everything passed in individually?
+            This way we could run it for each snake?
+            and keep the controls separate? (main issue)
         [] THEN change snake.update to use self instead of game
     [] allow the player to hit '2' to add a second snake
