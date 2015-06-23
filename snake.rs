@@ -41,11 +41,11 @@ fn main() {
 
     println!("R => Restart\nP => Pause\nEsc => Quit");
 
-    let board_dimensions = [BOARD_WIDTH as u32 * TILE_SIZE as u32, BOARD_HEIGHT as u32 * TILE_SIZE as u32];
+    let board_size_pixels = [BOARD_WIDTH as u32 * TILE_SIZE as u32, BOARD_HEIGHT as u32 * TILE_SIZE as u32];
 
     let window = Window::new(
         WindowSettings::new("Snake - Piston",
-                            [board_dimensions[0], board_dimensions[1]])
+                            [board_size_pixels[0], board_size_pixels[1]])
             .exit_on_esc(true));
 
     let mut gfx = GlGraphics::new(OpenGL::_3_2);
@@ -80,6 +80,7 @@ enum State {
 #[derive(PartialEq, Copy, Clone)]
 struct Point{x: i8, y: i8}
 
+#[derive(Clone)]
 struct Snake {
     tail: VecDeque<Point>,
     keys: VecDeque<Key>,
@@ -117,10 +118,11 @@ impl Snake {
 
     fn update(g: &mut Game) {
         use piston::input::keyboard::Key::*;
-        if g.snake.keys.is_empty() {
-            g.snake.keys.push_back(g.snake.last_pressed);
+        if g.snakes[0].keys.is_empty() {
+            let last = g.clone().snakes[0].clone().last_pressed;
+            g.snakes[0].keys.push_back(last);
         }
-        let k = g.snake.keys.pop_front().unwrap();
+        let k = g.snakes[0].keys.pop_front().unwrap();
         g.mv(match k {
             Right =>  Point{x: 1, y: 0},
             Down => Point{x: 0, y: 1},
@@ -137,12 +139,13 @@ impl Snake {
 
 
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Clone)]
 enum FoodType {
     Apple,
     Candy,
 }
 
+#[derive(Clone)]
 struct Food {
     food_type: FoodType,
     xy: Point,
@@ -173,7 +176,7 @@ impl Food {
             let xy = Point {x: rng.gen_range(0,BOARD_WIDTH),
                             y: rng.gen_range(0,BOARD_HEIGHT)};
 
-            if !(g.snake.tail.iter().any(|t| *t == xy) ||
+            if !(g.snakes[0].tail.iter().any(|t| *t == xy) ||
                  g.food.iter().any(|f| f.xy == xy) ||
                  g.walls.iter().any(|w| *w == xy) ||
                  g.invisible_walls.iter().any(|w| *w == xy)) {
@@ -232,7 +235,7 @@ macro_rules! walls {
 }
 
 struct Level {
-    snake: Snake,
+    snakes: Vec<Snake>,
     walls: Vec<Point>,
     invisible_walls: Vec<Point>,
 }
@@ -249,13 +252,19 @@ fn level1() -> Level {
 
     let iw = walls![0,0, 7,0, 14,0, 14,7, 14,14, 7,14, 0,14, 0,7];
 
-    let mut s = VecDeque::new();
-    s.push_back(Point{x:2,y:3});
-    s.push_back(Point{x:2,y:2});
-    s.push_back(Point{x:2,y:1});
+    let mut snake1 = VecDeque::new();
+    snake1.push_back(Point{x:2,y:3});
+    snake1.push_back(Point{x:2,y:2});
+    snake1.push_back(Point{x:2,y:1});
+
+    let mut snake2 = VecDeque::new();
+    snake2.push_back(Point{x:4,y:3});
+    snake2.push_back(Point{x:4,y:2});
+    snake2.push_back(Point{x:4,y:1});
 
     Level {
-        snake: Snake::new(s, Key::Down),
+        snakes: vec![Snake::new(snake1, Key::Down),
+                    Snake::new(snake2, Key::Down)],
         walls: w,
         invisible_walls: iw,
     }
@@ -270,13 +279,19 @@ fn level2() -> Level {
 
     let iw = walls![];
 
-    let mut s = VecDeque::new();
-    s.push_back(Point{x:2,y:3});
-    s.push_back(Point{x:2,y:2});
-    s.push_back(Point{x:2,y:1});
+    let mut snake1 = VecDeque::new();
+    snake1.push_back(Point{x:2,y:3});
+    snake1.push_back(Point{x:2,y:2});
+    snake1.push_back(Point{x:2,y:1});
+
+    let mut snake2 = VecDeque::new();
+    snake2.push_back(Point{x:4,y:3});
+    snake2.push_back(Point{x:4,y:2});
+    snake2.push_back(Point{x:4,y:1});
 
     Level {
-        snake: Snake::new(s, Key::Down),
+        snakes: vec![Snake::new(snake1, Key::Down),
+                    Snake::new(snake2, Key::Down)],
         walls: w,
         invisible_walls: iw,
     }
@@ -292,8 +307,9 @@ fn rand_level() -> Level {
 }
 
 
+#[derive(Clone)]
 struct Game {
-    snake: Snake,
+    snakes: Vec<Snake>,
     time: f64,
     update_time: f64,
     state: State,
@@ -306,7 +322,7 @@ struct Game {
 impl Game {
     fn new() -> Game {
         let l = rand_level();
-        Game {snake: l.snake,
+        Game {snakes: l.snakes,
               time: UPDATE_TIME,
               update_time: UPDATE_TIME,
               state: State::Playing,
@@ -329,7 +345,9 @@ impl Game {
             f.render(t, gfx);
         }
 
-        self.snake.render(t, gfx);
+        for s in &self.snakes {
+            s.render(t, gfx);
+        }
 
         for w in &self.walls {
             rectangle(color::hex("002951"),
@@ -357,7 +375,7 @@ impl Game {
         match (key, self.state) {
             (Key::R, _) => {
                 let l = rand_level();
-                self.snake = l.snake;
+                self.snakes = l.snakes;
                 self.state = State::Playing;
                 self.time = UPDATE_TIME;
                 self.update_time = UPDATE_TIME;
@@ -374,14 +392,14 @@ impl Game {
                 self.state = State::Playing;
             },
             _ => {
-                self.snake.key_press(key);
+                self.snakes[0].key_press(key);
             }
         };
     }
 
     fn mv(&mut self, velocity: Point) {
-        let mut xy = Point{x: self.snake.tail.front().unwrap().x + velocity.x,
-                           y: self.snake.tail.front().unwrap().y + velocity.y};
+        let mut xy = Point{x: self.snakes[0].tail.front().unwrap().x + velocity.x,
+                           y: self.snakes[0].tail.front().unwrap().y + velocity.y};
         if xy.x >= BOARD_WIDTH {
             xy.x = 0;
         } else if xy.x < 0 {
@@ -394,7 +412,7 @@ impl Game {
             xy.y = BOARD_HEIGHT-1;
         }
 
-        if self.walls.iter().any(|w| *w == xy) || self.snake.collides(xy) {
+        if self.walls.iter().any(|w| *w == xy) || self.snakes[0].collides(xy) {
             self.state = State::GameOver;
             println!("### Game Over ###\nScore: {}\nPress R to restart\nPress Esc to quit", self.score);
             return;
@@ -404,15 +422,15 @@ impl Game {
             if self.food[i].xy == xy {
                 let f = self.food.swap_remove(i);
                 self.score += f.score;
-                let xy = *self.snake.tail.front().unwrap();
-                self.snake.tail.push_back(xy);
+                let xy = *self.snakes[0].tail.front().unwrap();
+                self.snakes[0].tail.push_back(xy);
                 self.update_time -= 0.002;
                 break;
             }
         }
 
-        self.snake.tail.pop_back();
-        self.snake.tail.push_front(xy);
+        self.snakes[0].tail.pop_back();
+        self.snakes[0].tail.push_front(xy);
     }
 }
 
