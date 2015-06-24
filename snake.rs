@@ -21,9 +21,10 @@ extern crate rand;
 
 use std::collections::VecDeque;
 
-use graphics::*;
-use opengl_graphics::{ GlGraphics, OpenGL };
-use piston::event::*;
+//use graphics::*;
+use graphics::{Context, math, color, rectangle, clear};
+use opengl_graphics::{GlGraphics, OpenGL};
+use piston::event::{Events, RenderEvent, PressEvent, UpdateEvent};
 use piston::input::keyboard::Key;
 use rand::{thread_rng, Rng};
 

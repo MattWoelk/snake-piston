@@ -1,3 +1,6 @@
+[done] make imports explicit
+    [done] remove the import, then add each explicitly that errors.
+
 [] make it 2-player
     [] make the game hold multiple snakes (but only set one)
         instead of snake.mv(game, point) it should be game.mv(snake, point)
