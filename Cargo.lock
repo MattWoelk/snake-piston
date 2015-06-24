@@ -294,7 +294,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "pistoncore-event 0.1.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "pistoncore-input 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "pistoncore-window 0.1.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "pistoncore-window 0.1.6 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -357,7 +357,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "pistoncore-event_loop 0.1.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "pistoncore-input 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "pistoncore-window 0.1.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "pistoncore-window 0.1.6 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -367,7 +367,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "clock_ticks 0.0.5 (registry+https://github.com/rust-lang/crates.io-index)",
  "piston-viewport 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "pistoncore-window 0.1.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "pistoncore-window 0.1.6 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -378,7 +378,7 @@ dependencies = [
  "gl 0.0.12 (registry+https://github.com/rust-lang/crates.io-index)",
  "glutin 0.1.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "pistoncore-input 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "pistoncore-window 0.1.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "pistoncore-window 0.1.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "shader_version 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
@@ -394,7 +394,7 @@ dependencies = [
 
 [[package]]
 name = "pistoncore-window"
-version = "0.1.4"
+version = "0.1.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "libc 0.1.8 (registry+https://github.com/rust-lang/crates.io-index)",
