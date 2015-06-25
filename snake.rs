@@ -78,10 +78,10 @@ enum State {
     GameOver,
 }
 
-#[derive(PartialEq, Copy, Clone)]
+#[derive(PartialEq, Copy, Clone, Debug)]
 struct Point{x: i8, y: i8}
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 struct Snake {
     tail: VecDeque<Point>,
     keys: VecDeque<Key>,
@@ -265,7 +265,7 @@ fn level1() -> Level {
 
     Level {
         snakes: vec![Snake::new(snake1, Key::Down),
-                    Snake::new(snake2, Key::Down)],
+                     Snake::new(snake2, Key::Down)],
         walls: w,
         invisible_walls: iw,
     }
@@ -292,7 +292,7 @@ fn level2() -> Level {
 
     Level {
         snakes: vec![Snake::new(snake1, Key::Down),
-                    Snake::new(snake2, Key::Down)],
+                     Snake::new(snake2, Key::Down)],
         walls: w,
         invisible_walls: iw,
     }
@@ -394,44 +394,118 @@ impl Game {
             },
             _ => {
                 self.snakes[0].key_press(key);
+                self.snakes[1].key_press(key);
             }
         };
     }
 
     fn mv(&mut self, velocity: Point) {
-        let mut xy = Point{x: self.snakes[0].tail.front().unwrap().x + velocity.x,
-                           y: self.snakes[0].tail.front().unwrap().y + velocity.y};
-        if xy.x >= BOARD_WIDTH {
-            xy.x = 0;
-        } else if xy.x < 0 {
-            xy.x = BOARD_WIDTH-1;
-        }
+        let mut i = 0;
+        let mut number_dead = 0;
+        for snake in &mut self.snakes {
+            let next_point = next_position_with_collisions(&snake, &velocity, &self.walls);
+            let state = calculate_game_over(&snake, &velocity, &self.walls, &mut self.food, &next_point);
+            if let State::GameOver = state {
+                number_dead += 1;
+                println!("~~~~~DONE~~~~{:?}~~~~``", i);
+            }
 
-        if xy.y >= BOARD_HEIGHT {
-            xy.y = 0;
-        } else if xy.y < 0 {
-            xy.y = BOARD_HEIGHT-1;
-        }
+            for i in 0..self.food.len() {
+                if self.food[i].xy == next_point {
+                    let f = self.food.swap_remove(i);
+                    self.score += f.score;
+                    let next_tail = *snake.tail.front().unwrap();
+                    snake.tail.push_back(next_tail);
+                    self.update_time -= 0.002;
+                    break;
+                }
+            }
 
-        if self.walls.iter().any(|w| *w == xy) || self.snakes[0].collides(xy) {
-            self.state = State::GameOver;
+            snake.tail.pop_back();
+            snake.tail.push_front(next_point);
+
+            i += 1;
+        }
+        if number_dead == 2 {
+            println!("DEEED");
             println!("### Game Over ###\nScore: {}\nPress R to restart\nPress Esc to quit", self.score);
             return;
         }
 
+        let mut next_point = Point{x: self.snakes[0].tail.front().unwrap().x + velocity.x,
+                           y: self.snakes[0].tail.front().unwrap().y + velocity.y};
+        if next_point.x >= BOARD_WIDTH {
+            next_point.x = 0;
+        } else if next_point.x < 0 {
+            next_point.x = BOARD_WIDTH-1;
+        }
+
+        if next_point.y >= BOARD_HEIGHT {
+            next_point.y = 0;
+        } else if next_point.y < 0 {
+            next_point.y = BOARD_HEIGHT-1;
+        }
+
         for i in 0..self.food.len() {
-            if self.food[i].xy == xy {
+            if self.food[i].xy == next_point {
                 let f = self.food.swap_remove(i);
                 self.score += f.score;
-                let xy = *self.snakes[0].tail.front().unwrap();
-                self.snakes[0].tail.push_back(xy);
+                let next_tail = *self.snakes[0].tail.front().unwrap();
+                self.snakes[0].tail.push_back(next_tail);
                 self.update_time -= 0.002;
                 break;
             }
         }
 
         self.snakes[0].tail.pop_back();
-        self.snakes[0].tail.push_front(xy);
+        self.snakes[0].tail.push_front(next_point);
     }
 }
 
+
+fn next_position_with_collisions(snake: &Snake, velocity: &Point, walls: &Vec<Point>) -> Point{
+    let mut next_point = Point{x: snake.tail.front().unwrap().x + velocity.x,
+    y: snake.tail.front().unwrap().y + velocity.y};
+    if next_point.x >= BOARD_WIDTH {
+        next_point.x = 0;
+    } else if next_point.x < 0 {
+        next_point.x = BOARD_WIDTH-1;
+    }
+
+    if next_point.y >= BOARD_HEIGHT {
+        next_point.y = 0;
+    } else if next_point.y < 0 {
+        next_point.y = BOARD_HEIGHT-1;
+    }
+
+    next_point
+}
+
+fn calculate_game_over(snake: &Snake, velocity: &Point, walls: &Vec<Point>, food: &mut Vec<Food>, xy: &Point) -> State {
+    if walls.iter().any(|w| *w == *xy) || snake.collides(*xy) {
+        return State::GameOver;
+    }
+
+    State::Playing
+}
+
+fn update_tail(snake: &mut Snake, food: &mut Vec<Food>) -> (u32, u32) {
+    let xy = Point{x:1, y:1};
+    for i in 0..food.len() {
+        if food[i].xy == xy {
+            let f = food.swap_remove(i);
+            //self.score += f.score;
+            println!("score += {}", f.score);
+            let xy = *snake.tail.front().unwrap();
+            snake.tail.push_back(xy);
+            //self.update_time -= 0.002;
+            println!("update_time -= {}", 0.002);
+            break;
+        }
+    }
+
+    snake.tail.pop_back();
+    snake.tail.push_front(xy);
+
+    (3, 3)
+}
