@@ -11,7 +11,9 @@
                 [] Level
                 [] Game
             [done] generate them in 2 random spots.
-            [] make them both move
+            [done] make them both move
+            [done] remove duplicate code.
+            [] get collision working again
             [] make the game end when both die.
         [] make mv have everything passed in individually?
             This way we could run it for each snake?

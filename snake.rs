@@ -403,8 +403,8 @@ impl Game {
         let mut i = 0;
         let mut number_dead = 0;
         for snake in &mut self.snakes {
-            let next_point = next_position_with_collisions(&snake, &velocity, &self.walls);
-            let state = calculate_game_over(&snake, &velocity, &self.walls, &mut self.food, &next_point);
+            let next_point = next_position_with_collisions(&snake, &velocity);
+            let state = calculate_game_over(&snake, &self.walls, &next_point);
             if let State::GameOver = state {
                 number_dead += 1;
                 println!("~~~~~DONE~~~~{:?}~~~~``", i);
@@ -426,44 +426,17 @@ impl Game {
 
             i += 1;
         }
+
         if number_dead == 2 {
             println!("DEEED");
             println!("### Game Over ###\nScore: {}\nPress R to restart\nPress Esc to quit", self.score);
             return;
         }
-
-        let mut next_point = Point{x: self.snakes[0].tail.front().unwrap().x + velocity.x,
-                           y: self.snakes[0].tail.front().unwrap().y + velocity.y};
-        if next_point.x >= BOARD_WIDTH {
-            next_point.x = 0;
-        } else if next_point.x < 0 {
-            next_point.x = BOARD_WIDTH-1;
-        }
-
-        if next_point.y >= BOARD_HEIGHT {
-            next_point.y = 0;
-        } else if next_point.y < 0 {
-            next_point.y = BOARD_HEIGHT-1;
-        }
-
-        for i in 0..self.food.len() {
-            if self.food[i].xy == next_point {
-                let f = self.food.swap_remove(i);
-                self.score += f.score;
-                let next_tail = *self.snakes[0].tail.front().unwrap();
-                self.snakes[0].tail.push_back(next_tail);
-                self.update_time -= 0.002;
-                break;
-            }
-        }
-
-        self.snakes[0].tail.pop_back();
-        self.snakes[0].tail.push_front(next_point);
     }
 }
 
 
-fn next_position_with_collisions(snake: &Snake, velocity: &Point, walls: &Vec<Point>) -> Point{
+fn next_position_with_collisions(snake: &Snake, velocity: &Point) -> Point{
     let mut next_point = Point{x: snake.tail.front().unwrap().x + velocity.x,
     y: snake.tail.front().unwrap().y + velocity.y};
     if next_point.x >= BOARD_WIDTH {
@@ -481,31 +454,10 @@ fn next_position_with_collisions(snake: &Snake, velocity: &Point, walls: &Vec<Po
     next_point
 }
 
-fn calculate_game_over(snake: &Snake, velocity: &Point, walls: &Vec<Point>, food: &mut Vec<Food>, xy: &Point) -> State {
+fn calculate_game_over(snake: &Snake, walls: &Vec<Point>, xy: &Point) -> State {
     if walls.iter().any(|w| *w == *xy) || snake.collides(*xy) {
         return State::GameOver;
     }
 
     State::Playing
-}
-
-fn update_tail(snake: &mut Snake, food: &mut Vec<Food>) -> (u32, u32) {
-    let xy = Point{x:1, y:1};
-    for i in 0..food.len() {
-        if food[i].xy == xy {
-            let f = food.swap_remove(i);
-            //self.score += f.score;
-            println!("score += {}", f.score);
-            let xy = *snake.tail.front().unwrap();
-            snake.tail.push_back(xy);
-            //self.update_time -= 0.002;
-            println!("update_time -= {}", 0.002);
-            break;
-        }
-    }
-
-    snake.tail.pop_back();
-    snake.tail.push_front(xy);
-
-    (3, 3)
 }
