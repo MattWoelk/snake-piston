@@ -400,7 +400,6 @@ impl Game {
     }
 
     fn mv(&mut self, velocity: Point) {
-        let mut i = 0;
         let mut number_dead = 0;
         for snake in &mut self.snakes {
             let next_point = next_position_with_collisions(&snake, &velocity);
@@ -423,8 +422,6 @@ impl Game {
 
             snake.tail.pop_back();
             snake.tail.push_front(next_point);
-
-            i += 1;
         }
 
         if number_dead == 2 {

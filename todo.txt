@@ -17,6 +17,7 @@
             [done] make the game end when any die.
             [done] make one snake stop
             [done] make the game end when both die.
+        [] line 412 -- make it more rustic by using the other kind of for loop
         [] make mv have everything passed in individually?
             This way we could run it for each snake?
             and keep the controls separate? (main issue)
