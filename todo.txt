@@ -13,8 +13,10 @@
             [done] generate them in 2 random spots.
             [done] make them both move
             [done] remove duplicate code.
-            [] get collision working again
-            [] make the game end when both die.
+            [done] get collision working again
+            [done] make the game end when any die.
+            [done] make one snake stop
+            [done] make the game end when both die.
         [] make mv have everything passed in individually?
             This way we could run it for each snake?
             and keep the controls separate? (main issue)

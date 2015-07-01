@@ -407,7 +407,7 @@ impl Game {
             let state = calculate_game_over(&snake, &self.walls, &next_point);
             if let State::GameOver = state {
                 number_dead += 1;
-                println!("~~~~~DONE~~~~{:?}~~~~``", i);
+                continue;
             }
 
             for i in 0..self.food.len() {
@@ -428,9 +428,8 @@ impl Game {
         }
 
         if number_dead == 2 {
-            println!("DEEED");
             println!("### Game Over ###\nScore: {}\nPress R to restart\nPress Esc to quit", self.score);
-            return;
+            self.state = State::GameOver;
         }
     }
 }
