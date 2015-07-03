@@ -393,6 +393,8 @@ impl Game {
                 self.state = State::Playing;
             },
             _ => {
+                // TODO: translate keys to actions here?
+                // Yes, snakes shouldn't know about keys, only commands.
                 self.snakes[0].key_press(key);
                 self.snakes[1].key_press(key);
             }

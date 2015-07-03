@@ -18,6 +18,7 @@
             [done] make one snake stop
             [done] make the game end when both die.
         [] find all snakes[0], and make it more intelligent
+            [] make multiple controllers, and have a way to wire them to things.
         [] make mv have everything passed in individually?
             This way we could run it for each snake?
             and keep the controls separate? (main issue)
