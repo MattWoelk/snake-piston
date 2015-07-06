@@ -219,6 +219,7 @@ impl Food {
         };
 
         rectangle(color, rectangle::square(self.xy.x as f64 * TILE_SIZE, self.xy.y as f64 * TILE_SIZE, TILE_SIZE), t, gfx);
+        rectangle(color::hex("ff0066"), rectangle::square((self.xy.x as f64 + 0.25) * TILE_SIZE, (self.xy.y as f64 + 0.25) * TILE_SIZE, (TILE_SIZE / 2.)), t, gfx);
     }
 }
 
