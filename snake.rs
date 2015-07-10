@@ -35,37 +35,44 @@ const BOARD_HEIGHT: i8 = 15;
 const TILE_SIZE: f64 = 50.0;
 const UPDATE_TIME: f64 = 0.15;
 
+#[derive(Clone, Debug, Copy)]
+struct Entity {
+//struct Entity<'b> {
+    //children: Vec<&'b Entity>,
+    last_pressed: Key,
+}
 
 fn main() {
     use glutin_window::GlutinWindow as Window;
     use piston::window::WindowSettings;
 
-    println!("R => Restart\nP => Pause\nEsc => Quit");
+    let mut entities:Vec<Entity> = vec![];
+
+    println!("START");
 
     let board_size_pixels = [BOARD_WIDTH as u32 * TILE_SIZE as u32, BOARD_HEIGHT as u32 * TILE_SIZE as u32];
 
     let window = Window::new(
-        WindowSettings::new("Snake - Piston",
-                            [board_size_pixels[0], board_size_pixels[1]])
+        WindowSettings::new("Snake - Piston", [board_size_pixels[0], board_size_pixels[1]])
             .exit_on_esc(true));
 
     let mut gfx = GlGraphics::new(OpenGL::_3_2);
 
-    let mut game = Game::new();
+    //let mut game = Game::new();
 
     for e in window.events() {
         use piston::input::Button;
         if let Some(args) = e.render_args() {
             let t = Context::new_viewport(args.viewport()).transform;
-            game.render(t, &mut gfx);
+            //game.render(t, &mut gfx);
         }
 
         if let Some(Button::Keyboard(key)) = e.press_args() {
-            game.key_press(key);
+            //game.key_press(key);
         }
 
         if let Some(args) = e.update_args() {
-            game.update(args.dt);
+            //game.update(args.dt);
         }
     }
 }
