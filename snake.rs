@@ -21,7 +21,6 @@ extern crate rand;
 
 use std::collections::VecDeque;
 
-//use graphics::*;
 use graphics::{Context, math, color, rectangle, clear};
 use opengl_graphics::{GlGraphics, OpenGL};
 use piston::event::{Events, RenderEvent, PressEvent, UpdateEvent};
@@ -39,14 +38,37 @@ const UPDATE_TIME: f64 = 0.15;
 struct Entity {
 //struct Entity<'b> {
     //children: Vec<&'b Entity>,
-    last_pressed: Key,
+    x:u32,
+    y:u32,
 }
+
+trait Renderable {
+    fn render(&self, t: math::Matrix2d, gfx: &mut GlGraphics);
+}
+
+impl Renderable for Entity {
+    fn render(&self, t: math::Matrix2d, gfx: &mut GlGraphics) {
+        let color = color::hex("b83e3e");
+
+        rectangle(
+            color,
+            rectangle::square(
+                self.x as f64 * TILE_SIZE,
+                self.y as f64 * TILE_SIZE,
+                TILE_SIZE),
+            t,
+            gfx);
+    }
+}
+
 
 fn main() {
     use glutin_window::GlutinWindow as Window;
     use piston::window::WindowSettings;
 
     let mut entities:Vec<Entity> = vec![];
+    entities.push(Entity { x:4, y:4 });
+    entities.push(Entity { x:5, y:6 });
 
     println!("START");
 
@@ -65,6 +87,12 @@ fn main() {
         if let Some(args) = e.render_args() {
             let t = Context::new_viewport(args.viewport()).transform;
             //game.render(t, &mut gfx);
+
+            // TODO: for each entity, draw it to the screen.
+            //       Use an iterator, so in the future I can put lists together easily
+            for entity in &entities {
+                entity.render(t, &mut gfx);
+            }
         }
 
         if let Some(Button::Keyboard(key)) = e.press_args() {
